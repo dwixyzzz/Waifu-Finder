@@ -5,4 +5,4 @@ BONUS: klik random buat munculin gambar waifu random, klik load 9 kalo pengin la
 btw bisa milih jenis nya, default nya "waifu" tinggal klik ntar muncul opsi kek neko dll
 pencet "clear" buat bersihin
 KLIK LINK KALO MAU NYOBA
-MAKASIH DAH MAMPIR😁
+#MAKASIH DAH MAMPIR😁
