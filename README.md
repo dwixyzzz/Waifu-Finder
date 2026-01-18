@@ -4,4 +4,5 @@ manga,anime,voice actor dari char terkait lengkap semua (maybe)😁
 BONUS: klik random buat munculin gambar waifu random, klik load 9 kalo pengin langsung banyak
 btw bisa milih jenis nya, default nya "waifu" tinggal klik ntar muncul opsi kek neko dll
 pencet "clear" buat bersihin
+KLIK LINK KALO MAU NYOBA
 MAKASIH DAH MAMPIR😁
