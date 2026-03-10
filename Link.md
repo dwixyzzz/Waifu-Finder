@@ -1,1 +1,1 @@
- https://dwixyzzz.github.io/Waifu-Finder/
+https://waifu-finder-chi.vercel.app
