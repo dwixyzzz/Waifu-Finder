@@ -1,388 +1,873 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="dark">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Waifu Finder</title>
-  <meta name="description" content="Mini web buat cari info waifu + fetch gambar dari internet. SFW only." />
-  <style>
-:root {
-  --bg: #0b0f14;
-  --panel: #111827;
-  --card: #0f1624;
-  --text: #e5e7eb;
-  --muted: #9ca3af;
-  --brand: #60a5fa;
-  --brand-2: #a78bfa;
-  --accent: #34d399;
-  --danger: #f87171;
-  --shadow: rgba(0,0,0,.35);
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Waifu Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23c084fc'/><stop offset='1' stop-color='%23818cf8'/></linearGradient></defs><rect width='32' height='32' rx='8' fill='url(%23g)'/><text x='16' y='22' text-anchor='middle' font-size='16' fill='white'>✦</text></svg>">
+<style>
+:root{--font:'Sora',sans-serif;--mono:'DM Mono',monospace;}
+[data-theme="dark"]{
+  --bg:#04080f;--bg2:#080e1e;--bg3:#0c1428;
+  --glass:rgba(255,255,255,.04);--gb:rgba(255,255,255,.09);--gh:rgba(255,255,255,.07);
+  --text:#e8f0ff;--text2:#a8bfdf;--muted:rgba(160,190,230,.45);
+  --a1:#60a5fa;--a2:#818cf8;--a3:#34d399;--a4:#c084fc;
+  --glow:rgba(96,165,250,.2);--glow2:rgba(129,140,248,.18);
+  --hbg:rgba(4,8,15,.75);--pbg:rgba(255,255,255,.03);
+  --sb:rgba(255,255,255,.04);--ss:rgba(255,255,255,.09);--orb:.9;
+  --over:rgba(4,8,15,.93);
 }
-* { box-sizing: border-box; }
-html, body { height: 100%; }
-body {
-  margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  background: radial-gradient(1200px 800px at 20% -10%, rgba(96,165,250,.08), transparent 60%),
-              radial-gradient(1000px 700px at 120% 10%, rgba(167,139,250,.08), transparent 60%),
-              var(--bg);
-  color: var(--text);
+[data-theme="light"]{
+  --bg:#f0f5ff;--bg2:#e4eeff;--bg3:#d8e6ff;
+  --glass:rgba(255,255,255,.6);--gb:rgba(60,100,200,.15);--gh:rgba(255,255,255,.75);
+  --text:#0a1a3c;--text2:#2a4a80;--muted:rgba(40,80,160,.55);
+  --a1:#2563eb;--a2:#6366f1;--a3:#059669;--a4:#9333ea;
+  --glow:rgba(37,99,235,.14);--glow2:rgba(99,102,241,.12);
+  --hbg:rgba(240,245,255,.85);--pbg:rgba(255,255,255,.65);
+  --sb:rgba(0,0,0,.06);--ss:rgba(0,0,0,.11);--orb:.28;
+  --over:rgba(10,26,60,.9);
 }
-header {
-  position: sticky; top: 0; z-index: 10;
-  backdrop-filter: blur(8px);
-  background: linear-gradient(180deg, rgba(11,15,20,.9), rgba(11,15,20,.6));
-  border-bottom: 1px solid rgba(255,255,255,.06);
-}
-.wrap { max-width: 1080px; margin: 0 auto; padding: 16px; }
-.brand { display: flex; align-items: center; gap: 10px; }
-.logo {
-  width: 36px; height: 36px; border-radius: 12px;
-  background: conic-gradient(from 120deg, var(--brand), var(--brand-2), var(--accent));
-  box-shadow: 0 8px 30px var(--shadow);
-}
-.brand h1 { font-size: 20px; margin: 0; letter-spacing: .2px; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s;}
 
-.toolbar {
-  display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; align-items: center; margin-top: 12px;
+/* ORBS */
+.orb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:var(--orb);transition:opacity .4s;}
+.o1{width:600px;height:600px;background:radial-gradient(circle,rgba(96,165,250,.2) 0%,transparent 70%);top:-200px;left:-150px;animation:d1 18s ease-in-out infinite alternate;}
+.o2{width:500px;height:500px;background:radial-gradient(circle,rgba(129,140,248,.17) 0%,transparent 70%);top:30%;right:-200px;animation:d2 22s ease-in-out infinite alternate;}
+.o3{width:400px;height:400px;background:radial-gradient(circle,rgba(192,132,252,.12) 0%,transparent 70%);bottom:10%;left:20%;animation:d1 28s ease-in-out infinite alternate-reverse;}
+@keyframes d1{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,60px) scale(1.08)}}
+@keyframes d2{from{transform:translate(0,0) scale(1)}to{transform:translate(-50px,30px) scale(1.05)}}
+body::before{content:'';position:fixed;inset:0;z-index:1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;opacity:.5;}
+.page{position:relative;z-index:2;}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:100;backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);background:var(--hbg);border-bottom:1px solid var(--gb);transition:background .3s;}
+.hi{max-width:1100px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:11px 24px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;cursor:pointer;flex-shrink:0;}
+.lm{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--a1),var(--a2));display:grid;place-items:center;font-size:15px;box-shadow:0 0 16px var(--glow),inset 0 1px 0 rgba(255,255,255,.2);}
+.bt{font-size:16px;font-weight:700;background:linear-gradient(135deg,var(--a1),var(--a4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.3px;}
+.hc{display:flex;gap:7px;align-items:center;flex:1;flex-wrap:wrap;}
+.sw{display:flex;flex:1;min-width:180px;gap:7px;background:var(--glass);border:1px solid var(--gb);border-radius:13px;padding:5px 5px 5px 12px;transition:border-color .2s,box-shadow .2s;}
+.sw:focus-within{border-color:rgba(192,132,252,.4);box-shadow:0 0 0 3px rgba(192,132,252,.08),0 0 18px var(--glow);}
+.sw input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:13px;}
+.sw input::placeholder{color:var(--muted);}
+button{font-family:var(--font);cursor:pointer;border:none;outline:none;border-radius:10px;font-size:12px;font-weight:500;padding:8px 13px;transition:all .15s ease;}
+button:active{transform:scale(.97);}
+.bp{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 4px 14px rgba(192,132,252,.3);}
+.bp:hover{box-shadow:0 6px 20px rgba(192,132,252,.45);transform:translateY(-1px);}
+.bg{background:var(--glass);border:1px solid var(--gb);color:var(--text);backdrop-filter:blur(12px);}
+.bg:hover{background:var(--gh);}
+.bd{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);color:#fca5a5;}
+.bd:hover{background:rgba(248,113,113,.14);}
+.tbtn{width:34px;height:34px;border-radius:9px;padding:0;display:grid;place-items:center;font-size:14px;background:var(--glass);border:1px solid var(--gb);color:var(--text);flex-shrink:0;}
+.tbtn:hover{background:var(--gh);}
+
+/* BACK BUTTON */
+.back-btn{display:flex;align-items:center;gap:6px;background:var(--glass);border:1px solid var(--gb);color:var(--muted);padding:7px 12px;border-radius:10px;font-size:12px;flex-shrink:0;}
+.back-btn:hover{background:var(--gh);color:var(--text);}
+
+/* VIEWS */
+.view{display:none;animation:fadeIn .25s ease;}
+.view.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.wrap{max-width:1100px;margin:0 auto;padding:20px 24px;}
+
+/* ── VIEW: GALLERY ── */
+.cat-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:18px;scrollbar-width:none;}
+.cat-tabs::-webkit-scrollbar{display:none;}
+.ctab{font-size:11px;padding:6px 14px;background:var(--glass);border:1px solid var(--gb);color:var(--muted);border-radius:999px;cursor:pointer;transition:all .15s;font-family:var(--mono);white-space:nowrap;flex-shrink:0;}
+.ctab:hover{border-color:var(--a1);color:var(--a1);}
+
+.cat-section{margin-bottom:28px;}
+.cat-section.hidden{display:none;}
+.cat-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cat-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-family:var(--mono);display:flex;align-items:center;gap:8px;}
+.cat-count{font-family:var(--mono);font-size:10px;background:var(--glass);border:1px solid var(--gb);color:var(--muted);padding:2px 8px;border-radius:999px;}
+.cat-sentinel{height:40px;display:flex;align-items:center;justify-content:center;}
+.cat-spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--gb);border-top-color:var(--a1);animation:sp .7s linear infinite;display:none;}
+.cat-sentinel.loading .cat-spin{display:block;}
+
+/* MASONRY per section */
+.masonry{columns:4 150px;gap:9px;}
+@media(max-width:700px){.masonry{columns:2 130px;gap:8px;}}
+.card{
+  position:relative;border-radius:14px;overflow:hidden;
+  background:var(--glass);border:1px solid var(--gb);
+  transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+  cursor:pointer;break-inside:avoid;margin-bottom:9px;display:block;
+  animation:cIn .3s ease backwards;
 }
-.search { display: flex; gap: 8px; }
-input, select, button {
-  background: var(--panel); border: 1px solid rgba(255,255,255,.08);
-  color: var(--text); border-radius: 12px; padding: 10px 12px; font-size: 14px;
-  outline: none; transition: transform .05s ease, border-color .2s ease, box-shadow .2s ease;
+@keyframes cIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.card:hover{
+  transform:translateY(-5px) scale(1.02);
+  box-shadow:
+    0 0 0 1px rgba(96,165,250,.4),
+    0 8px 20px rgba(0,0,0,.4),
+    0 0 28px rgba(96,165,250,.22),
+    0 0 55px rgba(129,140,248,.1);
+  border-color:rgba(96,165,250,.5);
 }
-input::placeholder { color: var(--muted); }
-input:focus, select:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(96,165,250,.15); }
-button { cursor: pointer; }
-button:active { transform: translateY(1px); }
-.btn {
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  border: none; color: #0b0f14; font-weight: 700;
+.thumb{width:100%;object-fit:cover;display:block;}
+.cov{position:absolute;inset:0;background:linear-gradient(to top,var(--over) 0%,transparent 50%);opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:flex-end;padding:8px;}
+.card:hover .cov{opacity:1;}
+.ctg{font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--a1);text-transform:uppercase;margin-bottom:4px;}
+.cas{display:flex;gap:4px;}
+.cab{flex:1;background:rgba(255,255,255,.1);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);color:#fff;border-radius:7px;padding:5px 2px;font-size:11px;}
+.cab:hover{background:rgba(255,255,255,.2);}
+
+/* SKELETON */
+.skel{border-radius:14px;overflow:hidden;background:var(--glass);border:1px solid var(--gb);break-inside:avoid;margin-bottom:9px;}
+.si{width:100%;background:linear-gradient(90deg,var(--sb) 0%,var(--ss) 40%,var(--sb) 80%);background-size:200% 100%;animation:shim 1.5s ease-in-out infinite;}
+.sf{padding:8px 9px;display:flex;gap:6px;}
+.sl{border-radius:999px;height:7px;background:linear-gradient(90deg,var(--sb) 0%,var(--ss) 40%,var(--sb) 80%);background-size:200% 100%;animation:shim 1.5s ease-in-out infinite;}
+@keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.thumb-err{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(248,113,113,.05);color:rgba(248,113,113,.4);font-size:22px;gap:4px;padding:40px 0;}
+.thumb-err span{font-size:9px;font-family:var(--mono);color:var(--muted);}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 20px;border:1px dashed rgba(255,255,255,.08);border-radius:16px;color:var(--muted);margin-top:4px;}
+[data-theme="light"] .empty{border-color:rgba(130,90,200,.18);}
+.empty .ej{font-size:38px;margin-bottom:9px;display:block;}
+.empty p{font-size:13px;line-height:1.6;}
+
+/* ── VIEW: CHAR SEARCH RESULTS ── */
+.page-title{font-size:18px;font-weight:700;margin-bottom:4px;}
+.page-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
+.char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;}
+.char-card{border-radius:14px;overflow:hidden;background:var(--glass);border:1px solid var(--gb);cursor:pointer;transition:transform .2s,box-shadow .2s;animation:cIn .3s ease backwards;}
+.char-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,0,0,.4),0 0 20px var(--glow);border-color:rgba(192,132,252,.25);}
+.char-card img{width:100%;aspect-ratio:2/3;object-fit:cover;object-position:top;display:block;}
+.char-card-info{padding:8px 10px 10px;}
+.cc-name{font-size:12px;font-weight:600;line-height:1.3;margin-bottom:2px;color:var(--text);}
+.cc-native{font-size:10px;color:var(--muted);font-family:var(--mono);}
+
+/* ── VIEW: CHAR DETAIL ── */
+.detail-grid{display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:start;}
+@media(max-width:700px){.detail-grid{grid-template-columns:1fr;}}
+
+/* LEFT: hero card */
+.char-hero-card{border-radius:18px;overflow:hidden;background:var(--pbg);border:1px solid var(--gb);backdrop-filter:blur(20px);}
+.ch-img{width:100%;aspect-ratio:3/4;object-fit:cover;object-position:top;display:block;}
+.ch-meta{padding:14px;}
+.ch-full{font-size:17px;font-weight:700;line-height:1.2;margin-bottom:3px;}
+.ch-nat{font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:12px;}
+.ch-badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px;}
+.badge{font-size:10px;font-family:var(--mono);padding:3px 9px;border-radius:999px;border:1px solid var(--gb);color:var(--muted);background:var(--glass);}
+.badge.hl{border-color:rgba(129,140,248,.3);color:var(--a2);background:rgba(129,140,248,.07);}
+.badge.gr{border-color:rgba(52,211,153,.3);color:#34d399;background:rgba(52,211,153,.07);}
+.badge.bl{border-color:rgba(96,165,250,.3);color:var(--a1);background:rgba(96,165,250,.07);}
+.ctab.active{background:rgba(96,165,250,.1);border-color:var(--a1);color:var(--a1);}
+.ch-anilist{width:100%;background:linear-gradient(135deg,rgba(96,165,250,.15),rgba(129,140,248,.1));border:1px solid rgba(96,165,250,.3);color:var(--a1);font-size:11px;padding:10px;border-radius:10px;font-weight:600;}
+.ch-anilist:hover{background:linear-gradient(135deg,rgba(96,165,250,.25),rgba(129,140,248,.2));box-shadow:0 4px 16px rgba(96,165,250,.2);}
+.ch-meta .dp-row{margin-top:8px;}
+
+/* RIGHT: detail panels */
+.detail-panels{display:flex;flex-direction:column;gap:12px;}
+.dpanel{background:var(--pbg);border:1px solid var(--gb);border-radius:16px;overflow:hidden;backdrop-filter:blur(16px);}
+.dph{padding:12px 16px 10px;border-bottom:1px solid var(--gb);display:flex;align-items:center;gap:7px;}
+.dpd{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,var(--a1),var(--a2));flex-shrink:0;}
+.dpt{font-size:12px;font-weight:600;color:var(--text);}
+.dpb{padding:14px 16px;}
+.dp-desc{font-size:12.5px;color:var(--muted);line-height:1.75;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;}
+.dp-desc.exp{display:block;max-height:300px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--gb) transparent;}
+.read-more{margin-top:7px;font-size:10px;color:var(--a1);background:none;border:none;padding:0;cursor:pointer;font-family:var(--mono);letter-spacing:.5px;}
+.media-list{display:flex;flex-direction:column;gap:5px;}
+.media-item{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--glass);border:1px solid var(--gb);border-radius:9px;cursor:pointer;transition:background .15s;font-size:12px;}
+.media-item:hover{background:var(--gh);border-color:rgba(96,165,250,.2);}
+.mi-title{color:var(--text);font-weight:500;}
+.mi-type{font-size:10px;color:var(--muted);font-family:var(--mono);}
+
+/* MEDIA CARDS — cover image grid */
+.media-cards{display:flex;flex-direction:column;gap:8px;}
+.media-card{
+  display:flex;gap:10px;align-items:flex-start;
+  background:var(--glass);border:1px solid var(--gb);border-radius:11px;
+  padding:8px;cursor:pointer;transition:all .15s;
+  border-left:3px solid var(--mc,var(--a1));
 }
-.btn-ghost { background: var(--panel); }
+.media-card:hover{background:var(--gh);border-color:rgba(96,165,250,.3);transform:translateX(2px);}
+.mc-cover{width:42px;height:58px;object-fit:cover;border-radius:7px;flex-shrink:0;background:var(--glass);}
+.mc-info{flex:1;min-width:0;}
+.mc-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.3;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mc-en{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:4px;}
+.mc-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.mc-fmt{font-size:10px;font-family:var(--mono);color:var(--a1);background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);padding:2px 6px;border-radius:999px;}
+.mc-ep{font-size:10px;color:var(--muted);font-family:var(--mono);}
+.mc-score{font-size:10px;color:#fbbf24;font-family:var(--mono);}
 
-main { max-width: 1080px; margin: 0 auto; padding: 16px; }
-.hint { color: var(--muted); font-size: 13px; margin: 10px 0 0; }
+/* detail info rows */
+.dp-row{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;}
+.dp-lbl{font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.8px;flex-shrink:0;padding-top:1px;width:90px;}
+.dp-val{font-size:12px;color:var(--text2);line-height:1.5;}
+.favs-panel-row{display:flex;flex-wrap:wrap;gap:6px;}
 
-.grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-top: 16px;
+/* FAVS PILLS */
+.fav-pill{position:relative;background:var(--glass);border:1px solid var(--gb);border-radius:8px;padding:5px 8px;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:var(--mono);display:flex;align-items:center;gap:3px;}
+.fav-pill:hover{border-color:rgba(192,132,252,.35);color:var(--a1);background:var(--gh);}
+.fav-tip{position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%) translateY(4px);width:76px;border-radius:9px;overflow:hidden;border:1px solid var(--gb);box-shadow:0 8px 22px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .15s,transform .15s;z-index:200;}
+.fav-pill:hover .fav-tip{opacity:1;transform:translateX(-50%) translateY(0);}
+.fav-tip img{width:100%;aspect-ratio:3/4;object-fit:cover;display:block;}
+.fav-none{color:var(--muted);font-size:12px;}
+
+/* LIGHTBOX */
+#lb{position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s;}
+#lb.open{opacity:1;pointer-events:all;}
+.lbb{position:absolute;inset:0;background:rgba(4,2,10,.88);backdrop-filter:blur(20px);}
+[data-theme="light"] .lbb{background:rgba(160,130,210,.65);}
+.lbi{position:relative;z-index:1;max-width:min(500px,92vw);width:100%;transform:scale(.92) translateY(16px);transition:transform .28s cubic-bezier(.34,1.56,.64,1);}
+#lb.open .lbi{transform:scale(1) translateY(0);}
+.lbiw{border-radius:16px;overflow:hidden;border:1px solid var(--gb);box-shadow:0 36px 70px rgba(0,0,0,.7),0 0 44px var(--glow);background:var(--glass);position:relative;}
+.lbiw img{width:100%;max-height:68vh;object-fit:contain;display:block;}
+.lbt{position:absolute;top:9px;left:9px;font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--a1);background:rgba(6,4,15,.75);backdrop-filter:blur(8px);border:1px solid rgba(192,132,252,.2);padding:3px 8px;border-radius:999px;}
+.lbx{position:absolute;top:-11px;right:-11px;width:32px;height:32px;border-radius:50%;background:rgba(20,10,40,.9);border:1px solid var(--gb);color:var(--muted);font-size:13px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);cursor:pointer;}
+.lbx:hover{color:var(--text);}
+.lbbar{margin-top:9px;display:flex;gap:6px;background:rgba(10,6,24,.75);backdrop-filter:blur(16px);border:1px solid var(--gb);border-radius:13px;padding:8px;}
+[data-theme="light"] .lbbar{background:rgba(240,234,255,.8);}
+.lbbar button{flex:1;padding:8px 4px;background:var(--glass);border:1px solid var(--gb);color:var(--text);font-size:11px;border-radius:9px;}
+.lbbar button:hover{background:var(--gh);}
+.lbfav{color:#fbbf24!important;}.lbfav:hover{background:rgba(251,191,36,.08)!important;border-color:rgba(251,191,36,.3)!important;}
+.lbsh{color:#34d399!important;}.lbsh:hover{background:rgba(52,211,153,.08)!important;border-color:rgba(52,211,153,.3)!important;}
+
+/* CONFIRM */
+#cdlg{position:fixed;inset:0;z-index:998;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;}
+#cdlg.open{opacity:1;pointer-events:all;}
+.cbd{position:absolute;inset:0;background:rgba(4,2,10,.7);backdrop-filter:blur(12px);}
+.cbox{position:relative;z-index:1;background:var(--bg2);border:1px solid var(--gb);border-radius:16px;padding:24px 20px;max-width:296px;width:100%;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.6);transform:scale(.94);transition:transform .22s cubic-bezier(.34,1.56,.64,1);}
+#cdlg.open .cbox{transform:scale(1);}
+.ci{font-size:32px;margin-bottom:9px;display:block;}
+.ct{font-size:14px;font-weight:600;margin-bottom:5px;}
+.cs{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+.cbtns{display:flex;gap:8px;}
+.cbtns button{flex:1;padding:9px;border-radius:10px;font-size:12px;font-weight:500;}
+.ccan{background:var(--glass);border:1px solid var(--gb);color:var(--text);}
+.cok{background:linear-gradient(135deg,#f87171,#ef4444);border:none;color:#fff;}
+
+/* SPINNER */
+.spin{width:20px;height:20px;border-radius:50%;border:2px solid var(--gb);border-top-color:var(--a1);animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:rgba(20,10,40,.9);backdrop-filter:blur(20px);border:1px solid var(--gb);color:var(--text);padding:8px 15px;border-radius:11px;font-size:12px;box-shadow:0 8px 26px rgba(0,0,0,.4);z-index:9999;animation:tIn .2s ease;white-space:nowrap;}
+[data-theme="light"] .toast{background:rgba(240,234,255,.92);color:#1e0a3c;}
+@keyframes tIn{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+footer{max-width:1100px;margin:10px auto 32px;padding:0 24px;color:var(--muted);font-size:11px;text-align:center;}
+footer code{font-family:var(--mono);font-size:10px;background:var(--glass);border:1px solid var(--gb);padding:2px 5px;border-radius:4px;}
+
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--gb);border-radius:999px;}
+
+@media(max-width:600px){
+  .hi{padding:10px 14px;}
+  .wrap{padding:16px 14px;}
 }
-.card {
-  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01));
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 16px; overflow: hidden; position: relative;
-  box-shadow: 0 10px 30px var(--shadow);
-}
-.thumb { aspect-ratio: 4/5; width: 100%; object-fit: cover; display: block; }
-.meta { padding: 10px; display: flex; gap: 8px; align-items: center; justify-content: space-between; }
-.tag { font-size: 12px; color: var(--muted); padding: 4px 8px; border: 1px solid rgba(255,255,255,.08); border-radius: 999px; }
-.actions { display: flex; gap: 8px; }
-.mini { padding: 6px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,.08); background: var(--panel); color: var(--text); cursor: pointer; }
-.mini:hover { border-color: var(--brand); }
-
-.empty { color: var(--muted); text-align: center; padding: 40px 10px; border: 1px dashed rgba(255,255,255,.12); border-radius: 16px; }
-
-.split { display: grid; grid-template-columns: 2fr 1.2fr; gap: 18px; }
-@media (max-width: 980px) { .split { grid-template-columns: 1fr; } }
-
-.panel { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00));
-  border: 1px solid rgba(255,255,255,.06); border-radius: 16px; padding: 14px; }
-.panel h2 { margin: 0 0 8px; font-size: 16px; }
-.desc { color: var(--muted); font-size: 14px; line-height: 1.5; white-space: pre-line; }
-
-footer { max-width: 1080px; margin: 20px auto 60px; color: var(--muted); font-size: 12px; padding: 0 16px; }
-.pillbar { display: flex; flex-wrap: wrap; gap: 8px; }
-.pill { padding: 6px 10px; background: var(--panel); border: 1px solid rgba(255,255,255,.08); border-radius: 999px; font-size: 12px; cursor: pointer; }
-.pill.active { border-color: var(--accent); color: #10b981; }
-
-/* ----------- RESPONSIVE FIX ----------- */
-@media (max-width: 768px) {
-  .toolbar {
-    grid-template-columns: 1fr;
-  }
-  .search {
-    flex-direction: column;
-  }
-  input, select, button {
-    width: 100%;
-    max-width: 100%;
-  }
-  .split {
-    grid-template-columns: 1fr;
-  }
-  .wrap, main, footer {
-    padding: 12px;
-    width: 100%;
-  }
-}
-  </style>
+</style>
 </head>
 <body>
-  <header>
-    <div class="wrap">
-      <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
-        <h1>Waifu Finder</h1>
-      </div>
-      <div class="toolbar">
-        <div class="search">
-          <input id="charInput" type="text" placeholder="Cari karakter" aria-label="Cari karakter" />
-          <button id="btnSearch" class="btn">Cari</button>
-        </div>
-        <select id="category">
-          <option value="waifu">waifu</option>
-          <option value="neko">neko</option>
-          <option value="cringe">cringe</option>
-          <option value="blush">blush</option>
-          <option value="smug">smug</option>
-          <option value="cuddle">cuddle</option>
-          <option value="happy">happy</option>
-          <option value="smile">smile</option>
-          <option value="wink">wink</option>
-          <option value="bite">bite</option>
-        </select>
-        <div style="display:flex; gap:8px; justify-content:flex-end;">
-          <button id="btnRandom" class="btn">Random</button>
-          <button id="btnNine" class="btn-ghost">Load 9</button>
-          <button id="btnClear" class="btn-ghost">Clear</button>
-        </div>
-      </div>
-      <p class="hint">Sumber gambar: <code>waifu.pics</code> (SFW). Info karakter: <code>AniList</code>. Simpan favorit lokal, no akun, no ribet.</p>
+<div class="o1 orb"></div><div class="o2 orb"></div><div class="o3 orb"></div>
+<div class="page">
+
+<!-- ══ HEADER ══ -->
+<header>
+  <div class="hi">
+    <div class="brand" id="brandLink">
+      <div class="lm">✦</div>
+      <span class="bt">Waifu Finder</span>
     </div>
-  </header>
-
-  <main>
-    <div class="split">
-      <section>
-        <div id="gallery" class="grid" aria-live="polite"></div>
-        <div id="emptyState" class="empty" style="display:none">Belum ada gambar. Pencet <b>Random</b> atau <b>Load 9</b>.</div>
-      </section>
-      <aside>
-        <div class="panel">
-          <h2>Info Karakter</h2>
-          <div id="charInfo">
-            <p class="desc">Ketik nama karakter anime favorit lo, terus teken <b>Cari</b>. Nanti muncul foto + deskripsi dari AniList.</p>
-          </div>
-        </div>
-        <div class="panel" style="margin-top:12px;">
-          <h2>Favorit Lo</h2>
-          <div id="favBar" class="pillbar"></div>
-        </div>
-      </aside>
-    </div>
-  </main>
-
-  <footer>
-    <p>Made for fun only yach , SFW ONLY , gambar di ambil secara random</p>
-  </footer>
-
-  <template id="cardTpl">
-    <article class="card">
-      <img class="thumb" alt="Waifu" />
-      <div class="meta">
-        <span class="tag"></span>
-        <div class="actions">
-          <button class="mini" data-act="dl" title="Download">⬇️</button>
-          <button class="mini" data-act="copy" title="Copy URL">🔗</button>
-          <button class="mini" data-act="fav" title="Tambah ke favorit">⭐</button>
-        </div>
+    <div class="hc">
+      <div class="sw">
+        <input id="charInput" type="text" placeholder="Cari karakter anime..."/>
+        <button id="btnSearch" class="bp">Cari</button>
       </div>
-    </article>
-  </template>
+      <button id="btnRandom" class="bp">✦ Random</button>
+      <button id="btnClear" class="bd" style="flex-shrink:0">Clear</button>
+      <button id="themeBtn" class="tbtn" title="Toggle theme">🌙</button>
+    </div>
+  </div>
+</header>
 
-  <script>
-    const el = {
-      gallery: document.getElementById('gallery'),
-      empty: document.getElementById('emptyState'),
-      favBar: document.getElementById('favBar'),
-      category: document.getElementById('category'),
-      btnRandom: document.getElementById('btnRandom'),
-      btnNine: document.getElementById('btnNine'),
-      btnClear: document.getElementById('btnClear'),
-      charInput: document.getElementById('charInput'),
-      btnSearch: document.getElementById('btnSearch'),
-      charInfo: document.getElementById('charInfo'),
-      tpl: document.getElementById('cardTpl'),
+<!-- ══ VIEW: GALLERY ══ -->
+<div class="view active" id="viewGallery">
+  <div class="wrap">
+    <!-- category tabs -->
+    <div class="cat-tabs" id="catTabs">
+      <button class="ctab active" data-cat="waifu">waifu</button>
+      <button class="ctab" data-cat="neko">neko</button>
+      <button class="ctab" data-cat="cringe">cringe</button>
+      <button class="ctab" data-cat="blush">blush</button>
+      <button class="ctab" data-cat="smug">smug</button>
+      <button class="ctab" data-cat="cuddle">cuddle</button>
+      <button class="ctab" data-cat="happy">happy</button>
+      <button class="ctab" data-cat="smile">smile</button>
+      <button class="ctab" data-cat="wink">wink</button>
+      <button class="ctab" data-cat="bite">bite</button>
+      <button class="ctab" data-cat="fav">★ fav</button>
+    </div>
+
+    <!-- sections per category (generated by JS) -->
+    <div id="gallerySections"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: CHAR SEARCH RESULTS ══ -->
+<div class="view" id="viewCharList">
+  <div class="wrap">
+    <button class="back-btn" id="backFromList">← Kembali</button>
+    <div style="margin-top:16px;">
+      <div class="page-title" id="charListTitle">Hasil Pencarian</div>
+      <div class="page-sub" id="charListSub"></div>
+      <div class="char-grid" id="charGrid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VIEW: CHAR DETAIL ══ -->
+<div class="view" id="viewCharDetail">
+  <div class="wrap">
+    <button class="back-btn" id="backFromDetail">← Kembali ke hasil</button>
+    <div style="margin-top:16px;" id="charDetailContent"></div>
+  </div>
+</div>
+
+<footer><p>Made for fun ✦ SFW only ✦ Gambar dari <code>waifu.pics</code> · Info dari <code>AniList</code></p></footer>
+</div><!-- .page -->
+
+<!-- LIGHTBOX -->
+<div id="lb" role="dialog" aria-modal="true">
+  <div class="lbb" id="lbb"></div>
+  <div class="lbi">
+    <div class="lbiw">
+      <img id="lbImg" alt="Waifu"/>
+      <span id="lbTag" class="lbt"></span>
+      <button class="lbx" id="lbX">✕</button>
+    </div>
+    <div class="lbbar">
+      <button id="lbDl">⬇ DL</button>
+      <button id="lbCp">🔗 Copy</button>
+      <button id="lbSh" class="lbsh">↗ Share</button>
+      <button id="lbFv" class="lbfav">★ Fav</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM CLEAR -->
+<div id="cdlg" role="dialog" aria-modal="true">
+  <div class="cbd" id="cbd"></div>
+  <div class="cbox">
+    <span class="ci">🗑️</span>
+    <div class="ct">Hapus semua gambar?</div>
+    <p class="cs">Gallery dikosongkan. Favorit aman.</p>
+    <div class="cbtns">
+      <button class="ccan" id="ccan">Batal</button>
+      <button class="cok" id="cok">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<template id="cardTpl">
+  <article class="card">
+    <img class="thumb" alt=""/>
+    <div class="cov">
+      <div class="ctg"></div>
+      <div class="cas">
+        <button class="cab" data-act="dl">⬇</button>
+        <button class="cab" data-act="cp">🔗</button>
+        <button class="cab" data-act="sh">↗</button>
+        <button class="cab" data-act="fv">★</button>
+      </div>
+    </div>
+  </article>
+</template>
+
+<script>
+(() => {
+'use strict';
+const CATS = ['waifu','neko','cringe','blush','smug','cuddle','happy','smile','wink','bite'];
+const API  = c => `https://api.waifu.pics/sfw/${encodeURIComponent(c)}`;
+const $ = id => document.getElementById(id);
+
+// ── DOM ──
+const el = {
+  viewGallery:    $('viewGallery'),
+  viewCharList:   $('viewCharList'),
+  viewCharDetail: $('viewCharDetail'),
+  gallerySections:$('gallerySections'),
+  catTabs:        $('catTabs'),
+  charInput:      $('charInput'),
+  btnSearch:      $('btnSearch'),
+  btnRandom:      $('btnRandom'),
+  btnClear:       $('btnClear'),
+  themeBtn:       $('themeBtn'),
+  brandLink:      $('brandLink'),
+  // char list
+  backFromList:   $('backFromList'),
+  charListTitle:  $('charListTitle'),
+  charListSub:    $('charListSub'),
+  charGrid:       $('charGrid'),
+  // char detail
+  backFromDetail: $('backFromDetail'),
+  charDetailContent: $('charDetailContent'),
+  // lightbox
+  lb:$('lb'),lbb:$('lbb'),lbImg:$('lbImg'),lbTag:$('lbTag'),
+  lbX:$('lbX'),lbDl:$('lbDl'),lbCp:$('lbCp'),lbSh:$('lbSh'),lbFv:$('lbFv'),
+  // confirm
+  cdlg:$('cdlg'),cbd:$('cbd'),ccan:$('ccan'),cok:$('cok'),
+  tpl: $('cardTpl'),
+};
+
+// ── THEME ──
+{
+  const t = localStorage.getItem('wf-theme') || 'dark';
+  document.documentElement.dataset.theme = t;
+  el.themeBtn.textContent = t === 'dark' ? '🌙' : '☀️';
+}
+el.themeBtn.addEventListener('click', () => {
+  const n = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = n;
+  el.themeBtn.textContent = n === 'dark' ? '🌙' : '☀️';
+  localStorage.setItem('wf-theme', n);
+});
+
+// ── STORE (favs) ──
+const store = {
+  key:'wf-favs',
+  get(){ try{return JSON.parse(localStorage.getItem(this.key))||[];}catch{return[];} },
+  set(l){ localStorage.setItem(this.key,JSON.stringify(l)); },
+  toggle(url){
+    const c=this.get(), i=c.indexOf(url);
+    if(i>=0) c.splice(i,1); else c.unshift(url);
+    this.set(c.slice(0,24)); return i<0;
+  }
+};
+
+// ── SPA ROUTER ──
+let currentView = 'gallery';
+let prevView = 'gallery';
+function showView(id) {
+  ['viewGallery','viewCharList','viewCharDetail'].forEach(v => {
+    $(v).classList.toggle('active', v === id);
+  });
+  currentView = id;
+  window.scrollTo(0,0);
+}
+
+el.brandLink.addEventListener('click', () => showView('viewGallery'));
+el.backFromList.addEventListener('click', () => showView('viewGallery'));
+el.backFromDetail.addEventListener('click', () => showView('viewCharList'));
+
+// ── CATEGORY SECTIONS ──
+const sections = {}; // cat -> { el, masonry, count, loadBtn }
+
+function buildSections() {
+  CATS.forEach(cat => {
+    const sec = document.createElement('div');
+    sec.className = 'cat-section'; sec.id = `sec-${cat}`; sec.dataset.cat = cat;
+    sec.innerHTML = `
+      <div class="cat-header">
+        <span class="cat-label">
+          ${cat}
+          <span class="cat-count" id="cnt-${cat}">0</span>
+        </span>
+      </div>
+      <div class="masonry" id="mas-${cat}"></div>
+      <div class="cat-sentinel" id="sent-${cat}"><div class="cat-spin"></div></div>`;
+    el.gallerySections.appendChild(sec);
+    sections[cat] = {
+      el: sec,
+      masonry: $(`mas-${cat}`),
+      countEl: $(`cnt-${cat}`),
+      sentinel: $(`sent-${cat}`),
+      loading: false,
     };
+  });
 
-    const API_WAIFU = (cat) => `https://api.waifu.pics/sfw/${encodeURIComponent(cat)}`;
+  // "fav" section
+  const favSec = document.createElement('div');
+  favSec.className = 'cat-section hidden'; favSec.id = 'sec-fav'; favSec.dataset.cat = 'fav';
+  favSec.innerHTML = `
+    <div class="cat-header">
+      <span class="cat-label">★ Favorit <span class="cat-count" id="cnt-fav">0</span></span>
+    </div>
+    <div class="favs-panel-row" id="favRow"></div>`;
+  el.gallerySections.appendChild(favSec);
 
-    const store = {
-      key: 'waifu-favs',
-      get() { try { return JSON.parse(localStorage.getItem(this.key)) || []; } catch { return []; } },
-      set(list) { localStorage.setItem(this.key, JSON.stringify(list)); renderFavs(); },
-      toggle(url) {
-        const cur = this.get();
-        const i = cur.indexOf(url);
-        if (i >= 0) { cur.splice(i,1); } else { cur.unshift(url); }
-        this.set(cur.slice(0, 24));
+  // IntersectionObserver per category — trigger when sentinel enters viewport
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const cat = entry.target.dataset.cat;
+      if (cat && sections[cat] && !sections[cat].loading) loadCat(cat, 6);
+    });
+  }, { rootMargin: '300px' });
+
+  CATS.forEach(cat => {
+    const sent = sections[cat]?.sentinel;
+    if (sent) { sent.dataset.cat = cat; io.observe(sent); }
+  });
+}
+
+function updateCatCount(cat) {
+  const cnt = $(`cnt-${cat}`);
+  if (!cnt) return;
+  if (cat === 'fav') { cnt.textContent = store.get().length; return; }
+  cnt.textContent = sections[cat]?.masonry.querySelectorAll('.card').length || 0;
+}
+
+// ── CATEGORY FILTER TABS ──
+let activeTab = 'waifu';
+function switchTab(cat) {
+  activeTab = cat;
+  el.catTabs.querySelectorAll('.ctab').forEach(x => x.classList.remove('active'));
+  el.catTabs.querySelector(`[data-cat="${cat}"]`)?.classList.add('active');
+  el.gallerySections.querySelectorAll('.cat-section').forEach(s => {
+    s.classList.toggle('hidden', s.dataset.cat !== cat);
+  });
+}
+el.catTabs.addEventListener('click', e => {
+  const t = e.target.closest('.ctab'); if (!t) return;
+  switchTab(t.dataset.cat);
+});
+
+// ── FETCH ──
+const cache = new Map();
+async function fetchOne(cat) {
+  try {
+    const res = await fetch(API(cat));
+    if (!res.ok) throw new Error('Fetch gagal');
+    const { url } = await res.json();
+    if (!cache.has(cat)) cache.set(cat, new Set());
+    cache.get(cat).add(url);
+    return url;
+  } catch(e) { toast(e.message||'Error jaringan'); return null; }
+}
+
+// ── SKELETON ──
+function mkSkel(heightPx) {
+  const s = document.createElement('div'); s.className = 'skel';
+  s.innerHTML = `<div class="si" style="height:${heightPx}px"></div><div class="sf"><div class="sl" style="width:44px"></div><div class="sl" style="width:24px;margin-left:auto"></div></div>`;
+  return s;
+}
+
+// ── CARD ──
+function mkCard(url, cat, delay=0) {
+  const node = el.tpl.content.firstElementChild.cloneNode(true);
+  const img = node.querySelector('.thumb');
+  node.querySelector('.ctg').textContent = cat;
+  node.style.animationDelay = `${delay}s`;
+  img.onerror = () => {
+    const d=document.createElement('div'); d.className='thumb-err';
+    d.innerHTML=`💔<span>Gagal load</span>`; img.replaceWith(d);
+  };
+  img.src = url; img.loading='lazy'; img.decoding='async';
+  node.addEventListener('click', e => {
+    const act = e.target.closest('[data-act]')?.dataset.act;
+    if (act) {
+      e.stopPropagation();
+      if (act==='dl') dlImg(url);
+      else if (act==='cp') copyUrl(url);
+      else if (act==='sh') shareImg(url);
+      else if (act==='fv') toast(store.toggle(url)?'★ Ditambah ke favorit':'✕ Dihapus dari favorit');
+    } else openLb(url, cat);
+  });
+  return node;
+}
+
+async function loadCat(cat, n=6) {
+  const sec = sections[cat]; if (!sec) return;
+  if (sec.loading) return;
+  sec.loading = true;
+  sec.sentinel.classList.add('loading');
+  const heights = [180,210,240,170,200,220];
+  const skels = Array.from({length:n}, (_,i) => { const s=mkSkel(heights[i%heights.length]); sec.masonry.appendChild(s); return s; });
+  const results = await Promise.all(Array.from({length:n}, () => fetchOne(cat)));
+  skels.forEach(s => s.remove());
+  results.filter(Boolean).forEach((u,i) => sec.masonry.appendChild(mkCard(u, cat, i*0.04)));
+  updateCatCount(cat);
+  sec.sentinel.classList.remove('loading');
+  sec.loading = false;
+}
+
+// ── RANDOM (single image, open lightbox) ──
+async function doRandom() {
+  const cat = CATS[Math.floor(Math.random()*CATS.length)];
+  el.btnRandom.disabled=true; el.btnRandom.textContent='...';
+  const url = await fetchOne(cat);
+  el.btnRandom.disabled=false; el.btnRandom.textContent='✦ Random';
+  if (url) openLb(url, cat);
+}
+
+// ── CLEAR ──
+el.btnClear.addEventListener('click', () => el.cdlg.classList.add('open'));
+el.cok.addEventListener('click', () => {
+  el.cdlg.classList.remove('open');
+  CATS.forEach(cat => { if(sections[cat]) sections[cat].masonry.innerHTML=''; updateCatCount(cat); });
+  toast('Gallery dikosongkan');
+});
+el.ccan.addEventListener('click', () => el.cdlg.classList.remove('open'));
+el.cbd.addEventListener('click', () => el.cdlg.classList.remove('open'));
+
+// ── LIGHTBOX ──
+let lbUrl='', lbTagV='';
+function openLb(url, tag) {
+  lbUrl=url; lbTagV=tag;
+  el.lbImg.src=url; el.lbTag.textContent=tag;
+  el.lb.classList.add('open'); document.body.style.overflow='hidden';
+}
+function closeLb() {
+  el.lb.classList.remove('open'); document.body.style.overflow='';
+  setTimeout(()=>{ el.lbImg.src=''; },280);
+}
+el.lbX.addEventListener('click',closeLb);
+el.lbb.addEventListener('click',closeLb);
+el.lbDl.addEventListener('click',()=>dlImg(lbUrl));
+el.lbCp.addEventListener('click',()=>copyUrl(lbUrl));
+el.lbSh.addEventListener('click',()=>shareImg(lbUrl));
+el.lbFv.addEventListener('click',()=>toast(store.toggle(lbUrl)?'★ Ditambah ke favorit':'✕ Dihapus dari favorit'));
+
+// ── DL / COPY / SHARE ──
+async function dlImg(url) {
+  try {
+    const r=await fetch(url,{mode:'cors'}), b=await r.blob();
+    const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='waifu.jpg';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    toast('⬇ Download dimulai');
+  } catch { copyUrl(url); toast('Ga bisa DL, URL di-copy.'); }
+}
+async function copyUrl(url) {
+  try { await navigator.clipboard.writeText(url); toast('🔗 URL di-copy!'); }
+  catch { toast('Copy gagal.'); }
+}
+async function shareImg(url) {
+  if (navigator.share) { try { await navigator.share({title:'Waifu Finder',url}); return; } catch {} }
+  copyUrl(url); toast('↗ URL di-copy, tinggal paste!');
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const t=document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transition='opacity .2s'; setTimeout(()=>t.remove(),200); },1800);
+}
+
+// ══════════════════════════════════════════
+//  CHARACTER SEARCH — AniList
+// ══════════════════════════════════════════
+let searchTimer;
+async function searchChars() {
+  const name = el.charInput.value.trim();
+  if (!name) { toast('Tulis nama karakternya dulu!'); return; }
+
+  // switch to char list view
+  showView('viewCharList');
+  el.charListTitle.textContent = `"${name}"`;
+  el.charListSub.textContent = '';
+  el.charGrid.innerHTML = `<div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:10px 0;"><div class="spin"></div><span style="font-size:12px;color:var(--muted)">Mencari di AniList...</span></div>`;
+
+  const q = `query($s:String){Page(perPage:12){characters(search:$s,sort:SEARCH_MATCH){id name{full native}image{medium}}}}`;
+  try {
+    const res = await fetch('https://graphql.anilist.co', {
+      method:'POST', headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body: JSON.stringify({query:q, variables:{s:name}})
+    });
+    if (!res.ok) throw new Error('AniList error');
+    const json = await res.json();
+    const chars = json?.data?.Page?.characters || [];
+    if (!chars.length) { el.charGrid.innerHTML=`<p style="color:var(--muted);font-size:13px;grid-column:1/-1">Karakter ga ketemu 😭</p>`; return; }
+    el.charListSub.textContent = `${chars.length} karakter ditemukan`;
+    el.charGrid.innerHTML = '';
+    chars.forEach((ch, i) => {
+      const card = document.createElement('div');
+      card.className = 'char-card'; card.style.animationDelay = `${i*0.04}s`;
+      card.innerHTML = `
+        <img src="${ch.image.medium}" alt="${ch.name.full}" loading="lazy"/>
+        <div class="char-card-info">
+          <div class="cc-name">${ch.name.full}</div>
+          ${ch.name.native ? `<div class="cc-native">${ch.name.native}</div>` : ''}
+        </div>`;
+      card.addEventListener('click', () => loadCharDetail(ch.id));
+      el.charGrid.appendChild(card);
+    });
+  } catch(e) {
+    el.charGrid.innerHTML = `<p style="color:var(--muted);font-size:13px;grid-column:1/-1">${e.message}</p>`;
+  }
+}
+
+async function loadCharDetail(id) {
+  showView('viewCharDetail');
+  el.charDetailContent.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:20px 0;"><div class="spin"></div><span style="font-size:12px;color:var(--muted)">Loading...</span></div>`;
+
+  const q = `query($id:Int){Character(id:$id){
+    id name{full native alternative}
+    image{large}
+    gender age bloodType
+    dateOfBirth{year month day}
+    description(asHtml:false)
+    favourites
+    media(sort:POPULARITY_DESC,perPage:8){
+      nodes{
+        id title{romaji english}
+        type format status
+        episodes chapters
+        coverImage{medium color}
+        siteUrl
+        averageScore
       }
-    };
-
-    function setEmptyState() {
-      el.empty.style.display = el.gallery.children.length ? 'none' : 'block';
     }
+  }}`;
+  try {
+    const res = await fetch('https://graphql.anilist.co', {
+      method:'POST', headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body: JSON.stringify({query:q, variables:{id}})
+    });
+    if (!res.ok) throw new Error('AniList error');
+    const json = await res.json();
+    const ch = json?.data?.Character;
+    if (!ch) throw new Error('Gagal load detail');
 
-    function createCard(url, tag) {
-      const node = el.tpl.content.firstElementChild.cloneNode(true);
-      const img = node.querySelector('.thumb');
-      const badge = node.querySelector('.tag');
-      img.src = url; img.loading = 'lazy'; img.decoding = 'async';
-      badge.textContent = tag;
-      node.addEventListener('click', (e) => {
-        const act = e.target.closest('button')?.dataset.act;
-        if (!act) return;
-        e.stopPropagation();
-        if (act === 'dl') downloadImage(url);
-        if (act === 'copy') copyLink(url);
-        if (act === 'fav') store.toggle(url);
-      });
-      return node;
-    }
+    const desc = (ch.description||'').replace(/<[^>]+>/g,'').replace(/~![\s\S]*?!~/g,'').trim();
 
-    async function fetchOne(cat) {
-      try {
-        const res = await fetch(API_WAIFU(cat));
-        if (!res.ok) throw new Error('Gagal fetch gambar');
-        const data = await res.json();
-        return data.url;
-      } catch (err) {
-        toast(err.message || 'Error jaringan');
-        return null;
-      }
-    }
+    const dob = ch.dateOfBirth;
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const dobStr = dob && (dob.day||dob.month)
+      ? `${dob.day ? dob.day : '?'} ${dob.month ? months[dob.month-1] : ''} ${dob.year||''}`.trim() : null;
 
-    async function addRandom() {
-      const cat = el.category.value;
-      const url = await fetchOne(cat);
-      if (!url) return;
-      el.gallery.prepend(createCard(url, cat));
-      setEmptyState();
-    }
-    
-    async function addNine() {
-      const cat = el.category.value;
-      const tasks = Array.from({ length: 9 }, () => fetchOne(cat));
-      const results = await Promise.all(tasks);
-      const frag = document.createDocumentFragment();
-      results.filter(Boolean).forEach(u => frag.appendChild(createCard(u, cat)));
-      el.gallery.prepend(frag);
-      setEmptyState();
-    }
+    const altNames = (ch.name.alternative||[]).filter(a=>a&&a.trim());
 
-    function clearGallery() {
-      el.gallery.innerHTML = '';
-      setEmptyState();
-    }
+    const badges = [
+      ch.gender ? `<span class="badge bl">${ch.gender==='Male'?'♂ Male':ch.gender==='Female'?'♀ Female':'⚧ '+ch.gender}</span>` : '',
+      ch.age    ? `<span class="badge hl">Age ${ch.age}</span>` : '',
+      dobStr    ? `<span class="badge">🎂 ${dobStr}</span>` : '',
+      ch.bloodType ? `<span class="badge">🩸 Type ${ch.bloodType}</span>` : '',
+      ch.favourites ? `<span class="badge gr">♥ ${ch.favourites.toLocaleString()} favs</span>` : '',
+    ].filter(Boolean).join('');
 
-    async function downloadImage(url) {
-      try {
-        const res = await fetch(url, { mode: 'cors' });
-        const blob = await res.blob();
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'waifu.jpg';
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-      } catch {
-        copyLink(url);
-        toast('Ga bisa download langsung. URL sudah di-copy.');
-      }
-    }
+    const altHTML = altNames.length ? `
+      <div class="dp-row">
+        <span class="dp-lbl">Also known as</span>
+        <span class="dp-val">${altNames.join(', ')}</span>
+      </div>` : '';
 
-    async function copyLink(url) {
-      try { await navigator.clipboard.writeText(url); toast('URL di-copy.'); }
-      catch { toast('Copy gagal. Tahan lama pada tombol untuk opsi.'); }
-    }
+    const media = (ch.media?.nodes||[]);
+    const animes = media.filter(m=>m.type==='ANIME');
+    const mangas = media.filter(m=>m.type==='MANGA');
 
-    function renderFavs() {
-      const favs = store.get();
-      el.favBar.innerHTML = '';
-      favs.forEach(u => {
-        const p = document.createElement('button');
-        p.className = 'pill'; p.textContent = '⭐'; p.title = u;
-        p.onclick = () => el.gallery.prepend(createCard(u, 'favorit'));
-        el.favBar.appendChild(p);
-      });
-      if (!favs.length) {
-        const none = document.createElement('span');
-        none.className = 'pill'; none.textContent = 'Belum ada';
-        el.favBar.appendChild(none);
-      }
-    }
-
-    function toast(msg) {
-      const t = document.createElement('div');
-      t.textContent = msg;
-      Object.assign(t.style, {
-        position: 'fixed', left: '50%', bottom: '20px', transform: 'translateX(-50%)',
-        background: 'rgba(17,24,39,.9)', color: 'white', padding: '10px 14px', borderRadius: '12px',
-        border: '1px solid rgba(255,255,255,.12)', zIndex: 9999, boxShadow: '0 10px 30px rgba(0,0,0,.4)'
-      });
-      document.body.appendChild(t);
-      setTimeout(() => t.remove(), 1800);
-    }
-
-    async function searchCharacter() {
-      const name = el.charInput.value.trim();
-      if (!name) { toast('Isi dulu namanya kocak.'); return; }
-      el.charInfo.innerHTML = '<p class="desc">Loading...</p>';
-      const query = `
-        query ($search: String) {
-          Character(search: $search) {
-            id
-            name { full native }
-            image { large }
-            description(asHtml: true)
-          }
-        }
-      `;
-      try {
-        const res = await fetch('https://graphql.anilist.co', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ query, variables: { search: name } })
-        });
-        if (!res.ok) throw new Error('AniList lagi ngambek');
-        const json = await res.json();
-        const ch = json?.data?.Character;
-        if (!ch) throw new Error('Karakter tidak ditemukan');
-        const desc = sanitizeDescription(ch.description || '');
-        el.charInfo.innerHTML = `
-          <div style="display:flex; gap:12px; align-items:flex-start;">
-            <img src="${ch.image.large}" alt="${ch.name.full}" style="width:100px; height:100px; object-fit:cover; border-radius:12px; border:1px solid rgba(255,255,255,.12)"/>
-            <div>
-              <div style="font-weight:700;">${ch.name.full}${ch.name.native ? ` · <span style='color:var(--muted)'>${ch.name.native}</span>` : ''}</div>
-              <button class="mini" onclick="openAniList(${ch.id})">Buka di AniList</button>
+    function mkMediaCards(list) {
+      return list.map(m => {
+        const color = m.coverImage?.color || '#60a5fa';
+        const score = m.averageScore ? `<span class="mc-score">★ ${m.averageScore/10}</span>` : '';
+        const ep = m.episodes ? `${m.episodes} eps` : m.chapters ? `${m.chapters} ch` : m.status==='RELEASING'?'Ongoing':'';
+        return `<div class="media-card" onclick="window.open('${m.siteUrl}','_blank')" style="--mc:${color}">
+          <img class="mc-cover" src="${m.coverImage?.medium||''}" alt="${m.title.romaji}" loading="lazy"/>
+          <div class="mc-info">
+            <div class="mc-title">${m.title.romaji}</div>
+            ${m.title.english && m.title.english!==m.title.romaji ? `<div class="mc-en">${m.title.english}</div>` : ''}
+            <div class="mc-meta">
+              <span class="mc-fmt">${m.format||m.type}</span>
+              ${ep ? `<span class="mc-ep">${ep}</span>` : ''}
+              ${score}
             </div>
           </div>
-          <p class="desc" style="margin-top:8px;">${desc}</p>
-        `;
-      } catch (e) {
-        el.charInfo.innerHTML = `<p class="desc">${e.message}</p>`;
-      }
+        </div>`;
+      }).join('');
     }
 
-    function openAniList(id) { window.open(`https://anilist.co/character/${id}`, '_blank'); }
+    const animeSection = animes.length ? `
+      <div class="dpanel">
+        <div class="dph"><div class="dpd" style="background:linear-gradient(135deg,#60a5fa,#818cf8)"></div><span class="dpt">Anime (${animes.length})</span></div>
+        <div class="dpb"><div class="media-cards">${mkMediaCards(animes)}</div></div>
+      </div>` : '';
 
-    function sanitizeDescription(html) {
-      const div = document.createElement('div');
-      div.innerHTML = html.replace(/<br\s*\/?>/gi, '\n');
-      // Remove remaining tags, keep text only
-      return (div.textContent || div.innerText || '').trim().slice(0, 1200);
+    const mangaSection = mangas.length ? `
+      <div class="dpanel">
+        <div class="dph"><div class="dpd" style="background:linear-gradient(135deg,#34d399,#059669)"></div><span class="dpt">Manga (${mangas.length})</span></div>
+        <div class="dpb"><div class="media-cards">${mkMediaCards(mangas)}</div></div>
+      </div>` : '';
+
+    el.charDetailContent.innerHTML = `
+      <div class="detail-grid">
+        <div>
+          <div class="char-hero-card">
+            <img class="ch-img" src="${ch.image.large}" alt="${ch.name.full}"/>
+            <div class="ch-meta">
+              <div class="ch-full">${ch.name.full}</div>
+              ${ch.name.native?`<div class="ch-nat">${ch.name.native}</div>`:''}
+              <div class="ch-badges">${badges||'<span class="badge">Unknown</span>'}</div>
+              ${altHTML}
+              <button class="ch-anilist" onclick="window.open('https://anilist.co/character/${ch.id}','_blank')">Lihat di AniList ↗</button>
+            </div>
+          </div>
+        </div>
+        <div class="detail-panels">
+          ${desc ? `
+          <div class="dpanel">
+            <div class="dph"><div class="dpd"></div><span class="dpt">Tentang</span></div>
+            <div class="dpb">
+              <div class="dp-desc" id="dpDesc">${desc}</div>
+              <button class="read-more" id="rmBtn">▼ Selengkapnya</button>
+            </div>
+          </div>` : ''}
+          ${animeSection}
+          ${mangaSection}
+          <div class="dpanel">
+            <div class="dph"><div class="dpd" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)"></div><span class="dpt">Favorit Lo</span></div>
+            <div class="dpb"><div class="favs-panel-row" id="favRowDetail"></div></div>
+          </div>
+        </div>
+      </div>`;
+
+    const dd=$('dpDesc'), rm=$('rmBtn');
+    if(dd&&rm){
+      if(dd.scrollHeight<=dd.clientHeight+4) rm.style.display='none';
+      rm.addEventListener('click',()=>{
+        const exp=dd.classList.toggle('exp');
+        rm.textContent=exp?'▲ Sembunyikan':'▼ Selengkapnya';
+      });
     }
+    renderFavRow($('favRowDetail'));
+  } catch(e) {
+    el.charDetailContent.innerHTML = `<p style="color:var(--muted);font-size:13px;">${e.message}</p>`;
+  }
+}
 
-    // Events
-    el.btnRandom.addEventListener('click', addRandom);
-    el.btnNine.addEventListener('click', addNine);
-    el.btnClear.addEventListener('click', clearGallery);
-    el.btnSearch.addEventListener('click', searchCharacter);
-    el.charInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') searchCharacter(); });
+// ── FAVS ──
+function renderFavRow(container) {
+  if (!container) return;
+  const favs = store.get(); container.innerHTML = '';
+  if (!favs.length) {
+    const n=document.createElement('span'); n.className='fav-none'; n.textContent='Belum ada favorit.';
+    container.appendChild(n); return;
+  }
+  favs.forEach((u,i) => {
+    const p=document.createElement('button'); p.className='fav-pill'; p.title=u;
+    p.innerHTML=`★ #${i+1}<div class="fav-tip"><img src="${u}" loading="lazy" alt="fav"/></div>`;
+    p.onclick = () => openLb(u,'fav');
+    container.appendChild(p);
+  });
+}
 
-    // Init
-    renderFavs();
-    setEmptyState();
-  </script>
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  if (e.key!=='Escape') return;
+  if (el.lb.classList.contains('open')) closeLb();
+  if (el.cdlg.classList.contains('open')) el.cdlg.classList.remove('open');
+});
+
+// ── EVENTS ──
+el.btnSearch.addEventListener('click', searchChars);
+el.charInput.addEventListener('keydown', e => { if(e.key==='Enter') searchChars(); });
+el.charInput.addEventListener('input', () => { clearTimeout(searchTimer); searchTimer = setTimeout(()=>{ if(el.charInput.value.trim().length>=2 && currentView==='viewCharList') searchChars(); },700); });
+el.btnRandom.addEventListener('click', doRandom);
+
+// ── INIT ──
+buildSections();
+// hide all sections except waifu at start
+switchTab('waifu');
+})();
+</script>
 </body>
 </html>
-
